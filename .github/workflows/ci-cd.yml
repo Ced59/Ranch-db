@@ -16,19 +16,26 @@ jobs:
     - name: Set up SSH connection
       uses: appleboy/ssh-action@v1.0.3
       with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USERNAME }}
-        password: ${{ secrets.SSH_PASSWORD }}
-        port: ${{ secrets.SSH_PORT }}
-        script: |
-          # Vérification de l'existence du dossier /ranch_db
-          if [ ! -d "/ranch_db" ]; then
-            echo "Le dossier /ranch_db n'existe pas. Création en cours..."
-            mkdir -p /ranch_db
-          else
-            echo "Le dossier /ranch_db existe déjà."
-          fi
+       host: ${{ secrets.SSH_HOST }}
+       username: ${{ secrets.SSH_USERNAME }}
+       password: ${{ secrets.SSH_PASSWORD }}
+       port: ${{ secrets.SSH_PORT }}
+       script: |
+                if [ ! -f "/ranch_db/docker-compose.yml" ]; then
+                    echo "Transfert de docker-compose.yml..."
+                    scp ./docker-compose.yml ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/ranch_db/
+                    fi
+      
+                    # Vérification de l'existence du dossier /ranch_db
+                    if [ ! -d "/ranch_db" ]; then
+                    echo "Le dossier /ranch_db n'existe pas. Création en cours..."
+                    mkdir -p /ranch_db
+                    else
+                    echo "Le dossier /ranch_db existe déjà."
+                    fi
 
-          echo "Déploiement de SQL Server sur Docker..."
-          export SA_PASSWORD=${{ secrets.SA_PASSWORD }}
-          docker-compose -f /ranch_db/docker-compose.yml up -d
+                    echo "Déploiement de SQL Server sur Docker..."
+                    export SA_PASSWORD=${{ secrets.SA_PASSWORD }}
+                    docker-compose -f /ranch_db/docker-compose.yml up -d
+
+
