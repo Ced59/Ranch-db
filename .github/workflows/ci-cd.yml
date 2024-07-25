@@ -29,11 +29,17 @@ jobs:
                     echo "Le dossier /ranch_db existe déjà."
                 fi
 
+                # Assurer que docker-compose.yml est présent
+                if [ ! -f "docker-compose.yml" ]; then
+                    echo "docker-compose.yml n'est pas trouvé, vérifiez le chemin et la présence du fichier."
+                    exit 1
+                fi
+
                 # Transfert de docker-compose.yml
                 echo "Transfert de docker-compose.yml..."
-                cat docker-compose.yml | ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "cat > /ranch_db/docker-compose.yml"
+                scp -o StrictHostKeyChecking=no docker-compose.yml ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/ranch_db/
 
                 # Déploiement de SQL Server sur Docker
                 echo "Déploiement de SQL Server sur Docker..."
                 export SA_PASSWORD=${{ secrets.SA_PASSWORD }}
-                docker-compose -f /ranch_db/docker-compose.yml up -d
+                ssh ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "cd /ranch_db && docker-compose up -d"
