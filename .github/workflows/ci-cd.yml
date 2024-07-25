@@ -23,7 +23,7 @@ jobs:
        script: |
                 if [ ! -f "/ranch_db/docker-compose.yml" ]; then
                     echo "Transfert de docker-compose.yml..."
-                    scp ./docker-compose.yml ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/ranch_db/
+                    scp -o StrictHostKeyChecking=no ./docker-compose.yml ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/ranch_db/
                     fi
       
                     # Vérification de l'existence du dossier /ranch_db
