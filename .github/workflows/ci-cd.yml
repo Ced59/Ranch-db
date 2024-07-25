@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: Ranch
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -19,6 +20,9 @@ jobs:
         username: ${{ secrets.SSH_USERNAME }}
         password: ${{ secrets.SSH_PASSWORD }}
         port: ${{ secrets.SSH_PORT }}
+        envs: SA_PASSWORD
         script: |
-          docker-compose -f /ranch-bonheur/db/docker-compose.yml up -d
+          echo "Deploying SQL Server on Docker..."
+          export SA_PASSWORD=${{ secrets.SA_PASSWORD }}
+          docker-compose -f /path/to/your/docker-compose.yml up -d
 
