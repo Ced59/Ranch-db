@@ -8,7 +8,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: Ranch
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -16,30 +15,14 @@ jobs:
     - name: Set up SSH connection
       uses: appleboy/ssh-action@v1.0.3
       with:
-       host: ${{ secrets.SSH_HOST }}
-       username: ${{ secrets.SSH_USERNAME }}
-       password: ${{ secrets.SSH_PASSWORD }}
-       port: ${{ secrets.SSH_PORT }}
-       script: |
-                # Vérification et création du dossier /ranch_db
-                if [ ! -d "/ranch_db" ]; then
-                    echo "Le dossier /ranch_db n'existe pas. Création en cours..."
-                    mkdir -p /ranch_db
-                else
-                    echo "Le dossier /ranch_db existe déjà."
-                fi
-
-                # Assurer que docker-compose.yml est présent
-                if [ ! -f "docker-compose.yml" ]; then
-                    echo "docker-compose.yml n'est pas trouvé, vérifiez le chemin et la présence du fichier."
-                    exit 1
-                fi
-
-                # Transfert de docker-compose.yml
-                echo "Transfert de docker-compose.yml..."
-                scp -o StrictHostKeyChecking=no docker-compose.yml ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/ranch_db/
-
-                # Déploiement de SQL Server sur Docker
-                echo "Déploiement de SQL Server sur Docker..."
-                export SA_PASSWORD=${{ secrets.SA_PASSWORD }}
-                ssh ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "cd /ranch_db && docker-compose up -d"
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        password: ${{ secrets.SSH_PASSWORD }}
+        port: ${{ secrets.SSH_PORT }}
+        script: |
+          echo "Starting transfer of docker-compose.yml..."
+          scp -o StrictHostKeyChecking=no docker-compose.yml ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/ranch_db/
+          echo "Transfer completed."
+          
+          echo "Checking contents of /ranch_db/..."
+          ssh ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "ls -lah /ranch_db/"
